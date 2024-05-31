@@ -1,9 +1,9 @@
-import { createLogger } from "../../../logger";
+import type { TLoggerFactory } from "../../../logger/types";
 import { randomBetween } from "../../../utils";
 import {
   BaseApplicationProvider,
-  IApplicationProviderProcessAccount,
-  IBaseApplicationProviderOptions,
+  type IApplicationProviderProcessAccount,
+  type IBaseApplicationProviderOptions,
 } from "../../base";
 import {
   API_METHODS_URLS,
@@ -21,7 +21,10 @@ export class DegenerativeProvider extends BaseApplicationProvider {
     }
   > = {};
 
-  constructor(opts: IBaseApplicationProviderOptions) {
+  constructor(
+    private createLogger: TLoggerFactory,
+    opts: IBaseApplicationProviderOptions
+  ) {
     super(opts);
   }
 
@@ -84,7 +87,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
   };
 
   private logProfileLevelUp = (profile: IDegenerativeProfile) => {
-    const logger = createLogger(`DEGEN`);
+    const logger = this.createLogger('DEGEN');
 
     logger.info(
       `🎉 Level up available for ${profile.profile.user.username}!
@@ -97,7 +100,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
 
   public init = async (): Promise<void> => {
     for (const account of Object.values(this.accounts)) {
-      const logger = createLogger(`DEGEN ${account.name} init`);
+      const logger = this.createLogger(`DEGEN ${account.name} init`);
       try {
         const profile: IDegenerativeProfile = await this.initProfile(account);
         logger.info(
@@ -118,7 +121,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
 
   public process = async (): Promise<void> => {
     for (const account of Object.values(this.accounts)) {
-      const logger = createLogger(`DEGEN ${account.name} process`);
+      const logger = this.createLogger(`DEGEN ${account.name} process`);
 
       const isProcessingAvailable = this.getIsProcessingAvailable(account);
       if (!isProcessingAvailable) {

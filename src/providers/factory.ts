@@ -1,3 +1,4 @@
+import type { TLoggerFactory } from "../logger/types";
 import { BaseApplicationProvider, IApplicationProviderAccount } from "./base";
 import { ArbuzProvider } from "./impl/arbuz";
 import { DegenerativeProvider } from "./impl/degenerative";
@@ -10,13 +11,18 @@ export class ProviderFactory {
 
   static createProvider = (
     provider: string,
-    opts: { accounts: IApplicationProviderAccount[] }
+    opts: {
+      createLogger: TLoggerFactory;
+      accounts: IApplicationProviderAccount[];
+    }
   ): BaseApplicationProvider => {
     const providerCreatorByName = {
       [ProviderFactory.SUPPORTED_PROVIDERS.ARBUZ]: () =>
-        new ArbuzProvider({ accounts: opts.accounts }),
+        new ArbuzProvider(opts.createLogger, { accounts: opts.accounts }),
       [ProviderFactory.SUPPORTED_PROVIDERS.DEGENERATIVE]: () =>
-        new DegenerativeProvider({ accounts: opts.accounts }),
+        new DegenerativeProvider(opts.createLogger, {
+          accounts: opts.accounts,
+        }),
     };
 
     const providerCreator = providerCreatorByName[provider];

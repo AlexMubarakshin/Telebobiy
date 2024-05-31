@@ -1,6 +1,7 @@
 import { getEnvironments } from "./environments";
 import { IParsedProvderAccount } from "./environments/providers";
-import { createLogger } from "./logger";
+import { getLoggerFactory } from "./logger";
+import type { TLogTheme } from "./logger/types";
 
 import type {
   BaseApplicationProvider,
@@ -27,24 +28,28 @@ function envAccountToProviderAccount(
 }
 
 async function main() {
-  const logger = createLogger("Telebobiy");
-  logger.info(`Starting the ${logger.formatters.makeBold("Telebobiy")} ...`);
-  logger.info(`💖 Enjoying the app? Send a thank you with a donation:`);
-  logger.info(
-    ` - BTC: ${logger.formatters.makeBold(
-      "bc1qda0kujx6a4f7nsds660e09j8hqgp4fe6xq0acj"
-    )}`
-  );
-  logger.info(
-    ` - ETH: ${logger.formatters.makeBold(
-      "0x75aB5a3310B7A00ac4C82AC83e0A59538CA35fEE"
-    )}`
-  );
-
   const envs = getEnvironments({
     userAgent: DEFAULT_USER_AGENT,
     intervals: DEFAULT_INTERVALS_SECONDS,
   });
+
+  const createLogger = getLoggerFactory(
+    envs.config.loggerColorMode as TLogTheme
+  );
+
+  const logger = createLogger("Telebobiy");
+  logger.info(`Starting the ${logger.formatter.makeBold("Telebobiy")} ...`);
+  logger.info(`💖 Enjoying the app? Send a thank you with a donation:`);
+  logger.info(
+    ` - BTC: ${logger.formatter.makeBold(
+      "bc1qda0kujx6a4f7nsds660e09j8hqgp4fe6xq0acj"
+    )}`
+  );
+  logger.info(
+    ` - ETH: ${logger.formatter.makeBold(
+      "0x75aB5a3310B7A00ac4C82AC83e0A59538CA35fEE"
+    )}`
+  );
 
   const providers = Object.entries(envs.providers).reduce<
     BaseApplicationProvider[]
@@ -59,6 +64,7 @@ async function main() {
 
     try {
       const providerInstance = ProviderFactory.createProvider(providerName, {
+        createLogger,
         accounts,
       });
 

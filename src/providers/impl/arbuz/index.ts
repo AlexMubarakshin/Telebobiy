@@ -1,4 +1,4 @@
-import { createLogger } from "../../../logger";
+import { TLoggerFactory } from "../../../logger/types";
 import { randomBetween } from "../../../utils";
 import {
   BaseApplicationProvider,
@@ -40,7 +40,10 @@ export class ArbuzProvider extends BaseApplicationProvider {
     IArbuzProfile
   > = {};
 
-  constructor(opts: IBaseApplicationProviderOptions) {
+  constructor(
+    private createLogger: TLoggerFactory,
+    opts: IBaseApplicationProviderOptions
+  ) {
     super(opts);
   }
 
@@ -77,7 +80,7 @@ export class ArbuzProvider extends BaseApplicationProvider {
 
   public init = async (): Promise<void> => {
     for (const account of Object.values(this.accounts)) {
-      const logger = createLogger(`ARBZ ${account.name} init`);
+      const logger = this.createLogger(`ARBZ ${account.name} init`);
       const me: IArbuzProfile = await this.makeRequest(API_METODS_URLS.GET_ME, {
         method: "GET",
         body: undefined,
@@ -106,7 +109,7 @@ export class ArbuzProvider extends BaseApplicationProvider {
         continue;
       }
 
-      const logger = createLogger(`ARBZ ${account.name}`);
+      const logger = this.createLogger(`ARBZ ${account.name}`);
 
       const profile = this.profilesByAccounts[account.name];
       const hash = getClickHash({
