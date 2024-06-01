@@ -87,7 +87,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
   };
 
   private logProfileLevelUp = (profile: IDegenerativeProfile) => {
-    const logger = this.createLogger('DEGEN');
+    const logger = this.createLogger("DEGEN");
 
     logger.info(
       `🎉 Level up available for ${profile.profile.user.username}!
@@ -153,6 +153,12 @@ export class DegenerativeProvider extends BaseApplicationProvider {
           body: { dpoints: dpointsNext },
           userAgent: account.userAgent,
         });
+
+        if (response.error) {
+          logger.error(response.error);
+
+          return;
+        }
 
         logger.info(
           isLazySync

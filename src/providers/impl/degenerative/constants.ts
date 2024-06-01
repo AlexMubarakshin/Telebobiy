@@ -10,7 +10,7 @@ export const API_METHODS_URLS = {
   POST_COLLECT: "https://api.degenerative.space/collect",
 };
 
-export const CLICKS_PER_SECOND = [5, 30] as const;
+export const CLICKS_PER_SECOND = [2, 15] as const;
 
 export const PROFILE_UPDATE_RATE = 2; // minutes
 
