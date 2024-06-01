@@ -50,7 +50,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
         "Content-Type": "application/json",
         Pragma: "no-cache",
         "User-Agent": opts.userAgent,
-        "x-init-data": opts.initData,
+        "X-Init-Data": opts.initData,
       },
       method: opts.method,
       mode: "cors",
