@@ -1,5 +1,5 @@
 import type { TLoggerFactory } from "../../../logger/types";
-import { randomBetween } from "../../../utils";
+import { randomBetween } from "../../../utils/utils";
 import {
   BaseApplicationProvider,
   type IApplicationProviderProcessAccount,
@@ -8,16 +8,20 @@ import {
 import {
   API_METHODS_URLS,
   API_REFERER,
-  CLICKS_PER_SECOND,
-  PROFILE_UPDATE_RATE,
+  DEFAULT_CLICKS_PER_SECOND,
+  DEFAULTLAZY_SYNC_CHANCE,
+  DEFAULT_PROFILE_UPDATE_RATE,
 } from "./constants";
 import { IDegenerativeProfile } from "./models";
+import { convertPropsToPropfileOptions } from "./utils";
 
 export class DegenerativeProvider extends BaseApplicationProvider {
   private profileByAccounts: Record<
     IApplicationProviderProcessAccount["name"],
     IDegenerativeProfile & {
       fetchedAt: number;
+      clicksPerSecond: [number, number];
+      lazyChance: number;
     }
   > = {};
 
@@ -44,13 +48,13 @@ export class DegenerativeProvider extends BaseApplicationProvider {
       cache: "default",
       credentials: "omit",
       headers: {
-        Accept: "application/json, text/plain, */*",
-        "Accept-Language": "en-GB,en;q=0.9",
-        "Cache-Control": "no-cache",
-        "Content-Type": "application/json",
-        Pragma: "no-cache",
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-GB,en;q=0.9",
+        "cache-control": "no-cache",
+        "content-type": "application/json",
+        pragma: "no-cache",
         "User-Agent": opts.userAgent,
-        "X-Init-Data": opts.initData,
+        "x-init-data": opts.initData,
       },
       method: opts.method,
       mode: "cors",
@@ -74,9 +78,15 @@ export class DegenerativeProvider extends BaseApplicationProvider {
       }
     );
 
+    const opts = convertPropsToPropfileOptions(account.props, {
+      clicksPerSecond: DEFAULT_CLICKS_PER_SECOND,
+      lazyChance: DEFAULTLAZY_SYNC_CHANCE,
+    });
     this.profileByAccounts[account.name] = {
       ...profile,
       fetchedAt: Date.now(),
+
+      ...opts,
     };
 
     return profile;
@@ -135,7 +145,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
       const isLazySync = !account.nextProcess?.forced;
       const clicksPerSecond = isLazySync
         ? 0
-        : randomBetween(...CLICKS_PER_SECOND);
+        : randomBetween(...profile.clicksPerSecond);
       const secondsFromPreviousSync = account.lastProcess
         ? Math.floor((processingStart - account.lastProcess.at) / 1000)
         : 10;
@@ -173,7 +183,8 @@ export class DegenerativeProvider extends BaseApplicationProvider {
       }
 
       const shouldFetchProfile =
-        processingStart - profile.fetchedAt >= PROFILE_UPDATE_RATE * 60 * 1_000;
+        processingStart - profile.fetchedAt >=
+        DEFAULT_PROFILE_UPDATE_RATE * 60 * 1_000;
 
       if (shouldFetchProfile) {
         const profile: IDegenerativeProfile = await this.initProfile(account);
@@ -184,7 +195,7 @@ export class DegenerativeProvider extends BaseApplicationProvider {
       }
 
       const lazyChance = randomBetween(0, 100);
-      const shouldLazySync = lazyChance < 55;
+      const shouldLazySync = lazyChance < DEFAULTLAZY_SYNC_CHANCE;
 
       this.setAccountLastProcessComplete(
         account,

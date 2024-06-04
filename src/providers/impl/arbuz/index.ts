@@ -1,5 +1,5 @@
 import { TLoggerFactory } from "../../../logger/types";
-import { randomBetween } from "../../../utils";
+import { randomBetween } from "../../../utils/utils";
 import {
   BaseApplicationProvider,
   IApplicationProviderProcessAccount,

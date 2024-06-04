@@ -1,8 +1,15 @@
+import {
+  parseIntIntervalFromString,
+  upperCaseToCamelCase,
+} from "../utils/utils";
+
 export interface IParsedProvderAccount {
   name: string; /// ACCCOUNT_1, ACCOUNT_2, etc.
   rawData: string;
   userAgent: string;
   intervals: [number, number];
+
+  props: Record<string, string>;
 }
 
 export interface IParsedProvider {
@@ -10,16 +17,11 @@ export interface IParsedProvider {
   accounts: Record<IParsedProvderAccount["name"], IParsedProvderAccount>;
 }
 
-export function parseIntervalsEnvValue(
-  value: string
-): [number, number] | undefined {
-  const [min, max] = value.split(",").map((v) => parseInt(v, 10));
-
-  if (min && max) {
-    return [min, max];
-  }
-
-  return undefined;
+export function parseAccountCustomProperty(propery: string, value: string) {
+  return {
+    properyName: upperCaseToCamelCase(propery),
+    value,
+  };
 }
 
 export function parseProviders(
@@ -30,6 +32,8 @@ export function parseProviders(
   }
 ): Record<IParsedProvider["name"], IParsedProvider> {
   const providers: Record<IParsedProvider["name"], IParsedProvider> = {};
+
+  const customProps: Record<string, string> = {};
 
   for (const key in env) {
     if (key.startsWith("PROVIDER_")) {
@@ -55,6 +59,7 @@ export function parseProviders(
           rawData: "",
           userAgent: defaults.userAgent,
           intervals: defaults.intervals,
+          props: {},
         };
       }
 
@@ -66,8 +71,12 @@ export function parseProviders(
           env[key]!.trim() || defaults.userAgent;
       } else if (accountProp === "INTERVALS_SECONDS") {
         const intervals =
-          parseIntervalsEnvValue(env[key]!) || defaults.intervals;
+          parseIntIntervalFromString(env[key]!) || defaults.intervals;
         providers[providerName].accounts[accountName].intervals = intervals;
+      } else {
+        providers[providerName].accounts[accountName].props[
+          accountProp
+        ] = env[key]!;
       }
     }
   }

@@ -1,11 +1,11 @@
-import { randomBetween } from "../utils";
+import { randomBetween } from "../utils/utils";
 
 export interface IApplicationProviderAccount {
   name: string;
   rawData: string;
   userAgent: string;
   intervals: [number, number];
-  payload: Record<string, any>;
+  props: Record<string, any>;
 }
 
 export interface IBaseApplicationProviderOptions {

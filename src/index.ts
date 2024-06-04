@@ -8,7 +8,7 @@ import type {
   IApplicationProviderAccount,
 } from "./providers/base";
 import { ProviderFactory } from "./providers/factory";
-import { wait } from "./utils";
+import { wait } from "./utils/utils";
 
 const DEFAULT_USER_AGENT =
   "Mozilla/5.0 (Windows; U; Windows NT 6.2; WOW64) AppleWebKit/603.50 (KHTML, like Gecko) Chrome/53.0.2119.189 Safari/533";
@@ -16,14 +16,14 @@ const DEFAULT_INTERVALS_SECONDS = [5, 10] satisfies [number, number];
 
 function envAccountToProviderAccount(
   envAccount: IParsedProvderAccount,
-  payload: Record<string, any> = {}
+  props: Record<string, any> = {}
 ): IApplicationProviderAccount {
   return {
     name: envAccount.name,
     rawData: envAccount.rawData,
     userAgent: envAccount.userAgent,
     intervals: envAccount.intervals,
-    payload,
+    props,
   };
 }
 
@@ -58,6 +58,7 @@ async function main() {
       ([accountName, account]) => {
         return envAccountToProviderAccount(account, {
           username: accountName,
+          ...account.props,
         });
       }
     );

@@ -10,7 +10,8 @@ export const API_METHODS_URLS = {
   POST_COLLECT: "https://api.degenerative.space/collect",
 };
 
-export const CLICKS_PER_SECOND = [2, 15] as const;
+export const DEFAULT_CLICKS_PER_SECOND: [number, number] = [2, 8];
 
-export const PROFILE_UPDATE_RATE = 2; // minutes
+export const DEFAULT_PROFILE_UPDATE_RATE = 2; // minutes
 
+export const DEFAULTLAZY_SYNC_CHANCE = 30; // (0 - 100) percent
